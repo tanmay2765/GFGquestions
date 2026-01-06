@@ -1,23 +1,26 @@
 class Solution {
   public:
-    void mergeSort(vector<int>& arr, int l, int r) {
-        // code here
-        if(l<r){
-            int m=(l+r)/2;
-            mergeSort(arr,l,m);
-            mergeSort(arr,m+1,r);
-            merge(arr,l,m,r);
+    void merge(vector<int>& arr, int l, int m, int r){
+        int n1=m-l+1;
+        int n2=r-m;
+        vector<int>L(n1),R(n2);
+        for(int i=0;i<n1;i++) L[i]=arr[l+i];
+        for(int i=0;i<n2;i++) R[i]=arr[m+i+1];
+        int i=0,j=0;
+        int k=l;
+        while(i<n1 && j<n2){
+            if(L[i]<=R[j]) arr[k++]=L[i++];
+            else arr[k++]=R[j++];
         }
+        while(i<n1) arr[k++]=L[i++];
+        while(j<n2) arr[k++]=R[j++];
+        
     }
-    void merge(vector<int>& arr,int l,int m,int r){
-        vector<int> temp(r-l+1);
-        int i=l,j=m+1,k=0;
-        while(i<=m && j<=r){
-            if(arr[i]<=arr[j]) temp[k++]=arr[i++];
-            else temp[k++]=arr[j++];
-        }
-        while(i<=m) temp[k++]=arr[i++];
-        while(j<=r) temp[k++]=arr[j++];
-        for(int i=l;i<=r;i++) arr[i]=temp[i-l];
+    void mergeSort(vector<int>& arr, int l, int r) {
+        if(l>=r) return;
+        int m=(l+r)/2;
+        mergeSort(arr,l,m);
+        mergeSort(arr,m+1,r);
+        merge(arr,l,m,r);
     }
 };
