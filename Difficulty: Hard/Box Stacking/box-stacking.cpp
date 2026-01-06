@@ -1,39 +1,60 @@
+#include <bits/stdc++.h>
+using namespace std;
+
 class Solution {
 public:
     int maxHeight(vector<int>& height, vector<int>& width, vector<int>& length) {
-        struct Box {
-            int base1, base2, h;
-        };
 
-        vector<Box> boxes;
+        int n = height.size();
+        vector<vector<int>> boxes;
 
-        // Step 1: Generate all 3 rotations
-        for (int i = 0; i < height.size(); i++) {
-            int h = height[i], w = width[i], l = length[i];
+        // Generate exactly 3 valid rotations per box
+        for (int i = 0; i < n; i++) {
+            // height as vertical
+            boxes.push_back({
+                max(width[i], length[i]),
+                min(width[i], length[i]),
+                height[i]
+            });
 
-            boxes.push_back({max(w, l), min(w, l), h});
-            boxes.push_back({max(h, l), min(h, l), w});
-            boxes.push_back({max(h, w), min(h, w), l});
+            // width as vertical
+            boxes.push_back({
+                max(height[i], length[i]),
+                min(height[i], length[i]),
+                width[i]
+            });
+
+            // length as vertical
+            boxes.push_back({
+                max(height[i], width[i]),
+                min(height[i], width[i]),
+                length[i]
+            });
         }
 
-        // Step 2: Sort by base area descending
-        sort(boxes.begin(), boxes.end(), [](Box &a, Box &b) {
-            return (a.base1 * a.base2) > (b.base1 * b.base2);
-        });
+        // Sort by base area (descending)
+        sort(boxes.begin(), boxes.end(),
+             [](vector<int>& a, vector<int>& b) {
+                 return a[0] * a[1] > b[0] * b[1];
+             });
 
-        int n = boxes.size();
-        vector<int> dp(n);
+        int m = boxes.size();
+        vector<int> dp(m);
 
-        // Step 3: LIS-style DP
         int ans = 0;
-        for (int i = 0; i < n; i++) {
-            dp[i] = boxes[i].h;
+
+        // LIS-style DP
+        for (int i = 0; i < m; i++) {
+            dp[i] = boxes[i][2]; // height of current box
+
             for (int j = 0; j < i; j++) {
-                if (boxes[j].base1 > boxes[i].base1 &&
-                    boxes[j].base2 > boxes[i].base2) {
-                    dp[i] = max(dp[i], dp[j] + boxes[i].h);
+                if (boxes[i][0] < boxes[j][0] &&
+                    boxes[i][1] < boxes[j][1]) {
+
+                    dp[i] = max(dp[i], boxes[i][2] + dp[j]);
                 }
             }
+
             ans = max(ans, dp[i]);
         }
 
